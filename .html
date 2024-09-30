@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Internet Speed Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #4CAF50;
+    }
+
+    #speed-result {
+      font-size: 2em;
+      margin: 20px;
+      color: #333;
+    }
+
+    #start-test {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 1.2em;
+    }
+
+    #start-test:hover {
+      background-color: #45a049;
+    }
+
+    #loading {
+      display: none;
+      color: #555;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Check Your Internet Speed</h1>
+  <p>Click the button below to test your download speed.</p>
+  <button id="start-test">Start Speed Test</button>
+
+  <p id="loading">Testing... Please wait.</p>
+  <div id="speed-result"></div>
+
+  <script>
+    const testFileUrl = 'https://speed.hetzner.de/100MB.bin'; // A file to measure download speed
+    const startTestButton = document.getElementById('start-test');
+    const speedResult = document.getElementById('speed-result');
+    const loadingText = document.getElementById('loading');
+
+    function calculateSpeed(bytes, duration) {
+      // Convert bytes to megabits (1 byte = 8 bits, 1 megabit = 1,000,000 bits)
+      const megabits = (bytes * 8) / 1000000;
+      const seconds = duration / 1000;
+      const mbps = (megabits / seconds).toFixed(2);
+      return mbps;
+    }
+
+    async function startSpeedTest() {
+      try {
+        const startTime = Date.now();
+        
+        // Start showing the loading message
+        loadingText.style.display = 'block';
+        speedResult.textContent = '';
+
+        // Fetch the test file
+        const response = await fetch(testFileUrl);
+        const reader = response.body.getReader();
+        const contentLength = +response.headers.get('Content-Length');
+        let receivedLength = 0;
+        let chunks = [];
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+          receivedLength += value.length;
+        }
+
+        const endTime = Date.now();
+        const timeElapsed = endTime - startTime;
+
+        // Calculate speed
+        const downloadSpeed = calculateSpeed(receivedLength, timeElapsed);
+        
+        // Display the result
+        loadingText.style.display = 'none';
+        speedResult.textContent = `Download Speed: ${downloadSpeed} Mbps`;
+
+      } catch (error) {
+        console.error('Error:', error);
+        speedResult.textContent = 'Error calculating speed. Try again.';
+        loadingText.style.display = 'none';
+      }
+    }
+
+    startTestButton.addEventListener('click', startSpeedTest);
+  </script>
+
+</body>
+</html>
