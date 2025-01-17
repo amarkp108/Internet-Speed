@@ -57,7 +57,7 @@
     const loadingText = document.getElementById('loading');
 
     function calculateSpeed(bytes, duration) {
-      // Convert bytes to megabits (1 byte = 8 bits, 1 megabit = 1,000,000 bits)
+     
       const megabits = (bytes * 8) / 1000000;
       const seconds = duration / 1000;
       const mbps = (megabits / seconds).toFixed(2);
@@ -72,7 +72,7 @@
         loadingText.style.display = 'block';
         speedResult.textContent = '';
 
-        // Fetch the test file
+       
         const response = await fetch(testFileUrl);
         const reader = response.body.getReader();
         const contentLength = +response.headers.get('Content-Length');
@@ -92,7 +92,7 @@
         // Calculate speed
         const downloadSpeed = calculateSpeed(receivedLength, timeElapsed);
         
-        // Display the result
+        
         loadingText.style.display = 'none';
         speedResult.textContent = `Download Speed: ${downloadSpeed} Mbps`;
 
